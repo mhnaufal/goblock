@@ -1,26 +1,54 @@
-# Raylib C++ Starter Template
+# Brawlhahaha 🐚
 
-Raylib C++ Starter Template for Visual Studio Code on Windows.
+Fight with your life because one strike from the enemy can make you dead!
 
-This demo project contains a bouncing ball raylib example program.
+## Installation
 
-It works with raylib version 4.5.
-Tested on both Windows 10 and Windows 11.
+1. Clone
+2. `make run`
+3. Enjoy!
 
-# Video Tutorial
+---
 
-<p align="center">
-  <img src="preview.jpg" alt="" width="800">
-</p>
+## Controls
 
-<p align="center">
-🎥 <a href="https://www.youtube.com/watch?v=PaAcVk5jUd8">Video Tutorial on YouTube</a>
-</p>
+- `W A S D` : movement and jump
+- `j` : light attack
+- `k` : heavy attack
+- `l` : block
 
-<br>
-<br>
-<p align="center">
-| 📺 <a href="https://www.youtube.com/channel/UC3ivOTE5EgpmF2DHLBmWIWg">My YouTube Channel</a>
-| 🌍 <a href="http://www.educ8s.tv">My Website</a> | <br>
-</p>
+---
 
+## Objective
+
+Win the match!
+
+---
+
+## TODO
+
+1. Move out to individual function
+2. Checking for load texture error
+3. Player animation
+4. Player movement
+5. Game engine model-like
+6. Collision
+
+---
+
+## Notes
+
+---
+
+## References
+
+1. https://lazyfoo.net/tutorials/SDL/index2.php
+2. https://wiki.libsdl.org/SDL2/
+3. https://www.parallelrealities.co.uk/tutorials
+4. https://www.youtube.com/playlist?list=PL_xRyXins848nDj2v-TJYahzvs-XW9sVV
+
+---
+
+### License
+
+Open-source

@@ -23,13 +23,7 @@
             }
           ],
           "windows": {
-            "miDebuggerPath": "C:/raylib/w64devkit/bin/gdb.exe",
-          },
-          "osx": {
-            "MIMode": "lldb"
-          },
-          "linux": {
-            "miDebuggerPath": "/usr/bin/gdb",
+            "miDebuggerPath": "C:/Program Files/mingw64/bin/gdb.exe",
           },
           "preLaunchTask": "build debug"
         },
@@ -45,8 +39,8 @@
           "program": "${workspaceFolder}/${fileBasenameNoExtension}",
           "MIMode": "gdb",
           "windows": {
-            "program": "${workspaceFolder}/${fileBasenameNoExtension}.exe",
-            "miDebuggerPath": "C:/raylib/w64devkit/bin/gdb.exe"
+            "program": "${workspaceFolder}/build/game.exe",
+            "miDebuggerPath": "C:/Program Files/mingw64/bin/gdb.exe"
           },
           "osx": {
             "MIMode": "lldb"
