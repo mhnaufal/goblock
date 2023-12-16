@@ -10,8 +10,8 @@
                 "BUILD_MODE=DEBUG"
             ],
             "windows": {
-                "command": "C:/Program Files/mingw64/bin/mingw32-make.exe",
-            // "command": "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.29.30133/bin/Hostx64/x64/nmake.exe",
+                // "command": "C:/Program Files/mingw64/bin/mingw32-make.exe",
+                "command": "C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.29.30133/bin/Hostx64/x64/nmake.exe",
                 "args": [
                     "RAYLIB_PATH=${workspaceFolder}/include",
                     "PROJECT_NAME=${fileBasenameNoExtension}",
