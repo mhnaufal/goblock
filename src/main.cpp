@@ -1,48 +1,19 @@
-#include "main.h"
-
-flecs::entity create_object(flecs::world& game_world, const std::string& name,
-        const goblock::component::Position& pos,
-        const goblock::component::SizeRectangle& size,
-        const goblock::component::Velocity& vel) {
-    auto object = game_world.entity(name.c_str());
-    object.set<goblock::component::Position>({pos.x, pos.y});
-    object.set<goblock::component::SizeRectangle>({size.width, size.height});
-    object.set<goblock::component::Velocity>({vel.x, vel.y});
-    return object;
-}
-
-flecs::entity create_object(flecs::world& game_world, const std::string& name,
-        const goblock::component::Position& pos,
-        const goblock::component::SizeCircle& size,
-        const goblock::component::Velocity& vel) {
-    auto object = game_world.entity(name.c_str());
-    object.set<goblock::component::Position>({pos.x, pos.y});
-    object.set<goblock::component::SizeCircle>({size.radius});
-    object.set<goblock::component::Velocity>({vel.x, vel.y});
-    return object;
-}
+// goblock
+#include "Component.h"
+#include "GameScene.h"
+#include "Setup.h"
+#include "System.h"
 
 int main() {
     TraceLog(LOG_INFO, "Starting GoBlock...");
 
-    // Initialize game objects
+    // Initialize game
+    goblock::game::GameScene game_scene{};
+
     flecs::world game_world{};
-
-    goblock::component::Position ball_position{goblock::setup::SCREEN_WIDTH / 2,
-            goblock::setup::SCREEN_HEIGHT / 2};
-    goblock::component::SizeCircle ball_size{15};
-    goblock::component::Velocity ball_speed{0, 3};
-
-    auto ball = create_object(
-            game_world, "ball", ball_position, ball_size, ball_speed);
-
-    goblock::component::SizeRectangle player_size{170, 30};
-    goblock::component::Position player_position{
-            goblock::setup::SCREEN_WIDTH / 2 - (player_size.width / 2),
-            goblock::setup::SCREEN_HEIGHT - 50};
-    goblock::component::Velocity player_velocity{2, 0};
-    auto player = create_object(game_world, "player", player_position,
-            player_size, player_velocity);
+    flecs::entity ball{};
+    flecs::entity player{};
+    game_scene.init(game_world, ball, player);
 
     // Start the game process
     InitWindow(goblock::setup::SCREEN_WIDTH, goblock::setup::SCREEN_HEIGHT,
@@ -87,12 +58,8 @@ int main() {
         EndDrawing();
     }
 
-    goblock::setup::game_screen = goblock::setup::GameScreen::GAME_OVER;
-
     // Cleanup
-    CloseWindow();
-
-    TraceLog(LOG_INFO, "Stopping GoBlock...");
+    game_scene.cleanup();
 
     return 0;
 }

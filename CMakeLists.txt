@@ -18,7 +18,11 @@ if(CMAKE_GNU_COMPILER_ID)
 	set(CMAKE_CXX_FLAGS "-Wextra -Wall -Wpedantic")
 endif()
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME}
+		src/main.cpp
+		src/System.cpp
+		src/GameScene.cpp
+)
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
