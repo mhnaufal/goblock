@@ -10,19 +10,19 @@ void GameScene::init(
             static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2,
             static_cast<float>(goblock::setup::SCREEN_HEIGHT) / 6};
     goblock::component::SizeCircle ball_size{15};
-    goblock::component::Velocity ball_speed{8, 5};
+    goblock::component::Velocity ball_speed{3, 3};
 
     ball = goblock::system::create_object(
             game_world, "ball", ball_position, ball_size, ball_speed);
 
     // initialize player
-    goblock::component::SizeRectangle player_size{180, 30};
+    goblock::component::SizeRectangle player_size{200, 30};
     goblock::component::Position player_position{
             static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2 -
                     (player_size.width / 2),
             goblock::setup::SCREEN_HEIGHT - 100};
 
-    goblock::component::Velocity player_velocity{5, 0};
+    goblock::component::Velocity player_velocity{4, 0};
     player = goblock::system::create_object(game_world, "player",
             player_position, player_size, player_velocity);
 }

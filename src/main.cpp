@@ -37,19 +37,21 @@ int main() {
                 position_ball->x + velocity_ball->x,
                 position_ball->y + velocity_ball->y,
         });
-        ball.set<goblock::component::Velocity>(
-                {velocity_ball->x, velocity_ball->y + goblock::setup::GRAVITY});
 
-        // Ball collision
-        if (position_ball->y + radius_ball->radius >= GetScreenHeight() ||
-                position_ball->y - radius_ball->radius <= 0) {
+        // Ball & wall collision
+        int rand_x_direction = GetRandomValue(-1, 1) * (360 / 45);
+        if (position_ball->y - radius_ball->radius <= 0) {
             ball.set<goblock::component::Velocity>(
-                    {velocity_ball->x, velocity_ball->y * (-1)});
+                    {velocity_ball->x + rand_x_direction,
+                            velocity_ball->y * (-1)});
         }
         if (position_ball->x + radius_ball->radius >= GetScreenWidth() ||
                 position_ball->x - radius_ball->radius <= 0) {
             ball.set<goblock::component::Velocity>(
                     {velocity_ball->x * (-1), velocity_ball->y});
+        } else {
+            ball.set<goblock::component::Velocity>({velocity_ball->x,
+                    velocity_ball->y + goblock::setup::GRAVITY});
         }
 
         // Render player
@@ -81,6 +83,25 @@ int main() {
                     {velocity_player->x - 1, velocity_player->y}); // slowdown
         } else {
             player.set<goblock::component::Velocity>({0, 0}); // stop
+        }
+
+        // Player and wall collision
+        if (position_player->x <= 0) {
+            player.set<goblock::component::Position>({0, position_player->y});
+        } else if (position_player->x + size_player->width >=
+                   GetScreenWidth()) {
+            player.set<goblock::component::Position>(
+                    {static_cast<float>(GetScreenWidth()) - size_player->width,
+                            position_player->y});
+        }
+
+        // Ball and player collision
+        if (CheckCollisionCircleRec(Vector2{position_ball->x, position_ball->y},
+                    radius_ball->radius,
+                    Rectangle{position_player->x, position_player->y,
+                            size_player->width, size_player->height})) {
+            ball.set<goblock::component::Velocity>(
+                    {velocity_ball->x, velocity_ball->y * (-1)});
         }
 
         EndDrawing();
