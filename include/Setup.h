@@ -29,6 +29,8 @@ enum class GameScreen : uint8_t {
 };
 
 static GameScreen game_screen = GameScreen::MAIN_MENU;
+
+static const float GRAVITY{0.7};
 } // namespace setup
 
 } // namespace goblock

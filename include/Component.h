@@ -1,7 +1,9 @@
 #pragma once
 
-namespace goblock
-{
+// STL
+#include <iostream>
+
+namespace goblock {
 /******************
  * Component
  ******************/
@@ -9,25 +11,25 @@ namespace component {
 
 struct Position {
 public:
-    int x{};
-    int y{};
+    float x{};
+    float y{};
 };
 
 struct Velocity {
 public:
-    int x{};
-    int y{};
+    float x{};
+    float y{};
 };
 
 struct SizeRectangle {
 public:
-    int width{};
-    int height{};
+    float width{};
+    float height{};
 };
 
 struct SizeCircle {
 public:
-    int radius{};
+    float radius{};
 };
 } // namespace component
-}
+} // namespace goblock

@@ -7,13 +7,11 @@
 int main() {
     TraceLog(LOG_INFO, "Starting GoBlock...");
 
-    // Initialize game
-    goblock::game::GameScene game_scene{};
-
+    // Initialize world, entity, object, etc
     flecs::world game_world{};
     flecs::entity ball{};
     flecs::entity player{};
-    game_scene.init(game_world, ball, player);
+    goblock::game::GameScene::init(game_world, ball, player);
 
     // Start the game process
     InitWindow(goblock::setup::SCREEN_WIDTH, goblock::setup::SCREEN_HEIGHT,
@@ -32,12 +30,27 @@ int main() {
         const auto* velocity_ball = ball.get<goblock::component::Velocity>();
 
         DrawCircle(
-                position_ball->x, position_ball->y, radius_ball->radius, WHITE);
+                position_ball->x, position_ball->y, radius_ball->radius, GREEN);
 
+        // Ball movement
         ball.set<goblock::component::Position>({
                 position_ball->x + velocity_ball->x,
                 position_ball->y + velocity_ball->y,
         });
+        ball.set<goblock::component::Velocity>(
+                {velocity_ball->x, velocity_ball->y + goblock::setup::GRAVITY});
+
+        // Ball collision
+        if (position_ball->y + radius_ball->radius >= GetScreenHeight() ||
+                position_ball->y - radius_ball->radius <= 0) {
+            ball.set<goblock::component::Velocity>(
+                    {velocity_ball->x, velocity_ball->y * (-1)});
+        }
+        if (position_ball->x + radius_ball->radius >= GetScreenWidth() ||
+                position_ball->x - radius_ball->radius <= 0) {
+            ball.set<goblock::component::Velocity>(
+                    {velocity_ball->x * (-1), velocity_ball->y});
+        }
 
         // Render player
         const auto* position_player =
@@ -48,18 +61,33 @@ int main() {
                 player.get<goblock::component::Velocity>();
 
         DrawRectangle(position_player->x, position_player->y,
-                size_player->width, size_player->height, DARKBLUE);
+                size_player->width, size_player->height, DARKPURPLE);
 
-        player.set<goblock::component::Position>({
-                position_player->x + velocity_player->x,
-                position_player->y + velocity_player->y,
-        });
+        // Player movement
+        if (IsKeyDown(KEY_D)) {
+            player.set<goblock::component::Position>(
+                    {position_player->x + velocity_player->x,
+                            position_player->y}); // move
+            player.set<goblock::component::Velocity>(
+                    {velocity_player->x + 1, velocity_player->y}); // accelerate
+        } else if (IsKeyDown(KEY_A)) {
+            player.set<goblock::component::Position>(
+                    {position_player->x - velocity_player->x,
+                            position_player->y}); // move
+            player.set<goblock::component::Velocity>(
+                    {velocity_player->x + 1, velocity_player->y}); // accelerate
+        } else if (IsKeyReleased(KEY_A) || IsKeyReleased((KEY_D))) {
+            player.set<goblock::component::Velocity>(
+                    {velocity_player->x - 1, velocity_player->y}); // slowdown
+        } else {
+            player.set<goblock::component::Velocity>({0, 0}); // stop
+        }
 
         EndDrawing();
     }
 
     // Cleanup
-    game_scene.cleanup();
+    goblock::game::GameScene::cleanup();
 
     return 0;
 }

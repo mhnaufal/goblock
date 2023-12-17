@@ -10,8 +10,8 @@ namespace game {
 
 class GameScene {
 public:
-    void init(flecs::world& game_world, flecs::entity& ball, flecs::entity& player);
-    void cleanup();
+    static void init(flecs::world& game_world, flecs::entity& ball, flecs::entity& player);
+    static void cleanup();
 private:
 
 };
