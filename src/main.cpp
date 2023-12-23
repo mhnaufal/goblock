@@ -2,9 +2,13 @@
 #include "Component.h"
 #include "GameScene.h"
 #include "Setup.h"
-#include "System.h"
 
-int main() {
+Color GOBLOCK_GRAY{21, 27, 45};
+Color GOBLOCK_WHITE{255, 251, 195, 255};
+Color GOBLOCK_BLUE{131, 158, 238, 255};
+
+int main()
+{
     TraceLog(LOG_INFO, "Starting GoBlock...");
 
     // Initialize world, entity, object, etc
@@ -14,100 +18,64 @@ int main() {
     goblock::game::GameScene::init(game_world, ball, player);
 
     // Start the game process
-    InitWindow(goblock::setup::SCREEN_WIDTH, goblock::setup::SCREEN_HEIGHT,
-            goblock::setup::GAME_NAME.c_str());
+    InitWindow(goblock::setup::SCREEN_WIDTH, goblock::setup::SCREEN_HEIGHT, goblock::setup::GAME_NAME.c_str());
+    InitAudioDevice();
+
+    Music music = LoadMusicStream("../assets/audio/battle.mp3");
+
     SetTargetFPS(60);
 
     goblock::setup::game_screen = goblock::setup::GameScreen::GAME;
 
     while (!WindowShouldClose()) {
         BeginDrawing();
-        ClearBackground(BLACK);
+        ClearBackground(GOBLOCK_GRAY);
+        UpdateMusicStream(music);
+        PlayMusicStream(music);
 
-        // Render ball
+        // BALL
         const auto* position_ball = ball.get<goblock::component::Position>();
         const auto* radius_ball = ball.get<goblock::component::SizeCircle>();
         const auto* velocity_ball = ball.get<goblock::component::Velocity>();
 
-        DrawCircle(
-                position_ball->x, position_ball->y, radius_ball->radius, GREEN);
+        goblock::game::GameScene::render_ball(position_ball, radius_ball, GOBLOCK_WHITE);
 
-        // Ball movement
-        ball.set<goblock::component::Position>({
-                position_ball->x + velocity_ball->x,
-                position_ball->y + velocity_ball->y,
-        });
+        goblock::game::GameScene::movement_ball(ball, position_ball, velocity_ball);
 
-        // Ball & wall collision
-        int rand_x_direction = GetRandomValue(-1, 1) * (360 / 45);
-        if (position_ball->y - radius_ball->radius <= 0) {
-            ball.set<goblock::component::Velocity>(
-                    {velocity_ball->x + rand_x_direction,
-                            velocity_ball->y * (-1)});
-        }
-        if (position_ball->x + radius_ball->radius >= GetScreenWidth() ||
-                position_ball->x - radius_ball->radius <= 0) {
-            ball.set<goblock::component::Velocity>(
-                    {velocity_ball->x * (-1), velocity_ball->y});
-        } else {
-            ball.set<goblock::component::Velocity>({velocity_ball->x,
-                    velocity_ball->y + goblock::setup::GRAVITY});
-        }
+        goblock::game::GameScene::collision_ball(ball, position_ball, radius_ball, velocity_ball);
 
-        // Render player
-        const auto* position_player =
-                player.get<goblock::component::Position>();
-        const auto* size_player =
-                player.get<goblock::component::SizeRectangle>();
-        const auto* velocity_player =
-                player.get<goblock::component::Velocity>();
+        // PLAYER
+        const auto* position_player = player.get<goblock::component::Position>();
+        const auto* size_player = player.get<goblock::component::SizeRectangle>();
+        const auto* velocity_player = player.get<goblock::component::Velocity>();
 
-        DrawRectangle(position_player->x, position_player->y,
-                size_player->width, size_player->height, DARKPURPLE);
+        goblock::game::GameScene::render_player(position_player, size_player, GOBLOCK_BLUE);
 
-        // Player movement
-        if (IsKeyDown(KEY_D)) {
-            player.set<goblock::component::Position>(
-                    {position_player->x + velocity_player->x,
-                            position_player->y}); // move
-            player.set<goblock::component::Velocity>(
-                    {velocity_player->x + 1, velocity_player->y}); // accelerate
-        } else if (IsKeyDown(KEY_A)) {
-            player.set<goblock::component::Position>(
-                    {position_player->x - velocity_player->x,
-                            position_player->y}); // move
-            player.set<goblock::component::Velocity>(
-                    {velocity_player->x + 1, velocity_player->y}); // accelerate
-        } else if (IsKeyReleased(KEY_A) || IsKeyReleased((KEY_D))) {
-            player.set<goblock::component::Velocity>(
-                    {velocity_player->x - 1, velocity_player->y}); // slowdown
-        } else {
-            player.set<goblock::component::Velocity>({0, 0}); // stop
-        }
+        goblock::game::GameScene::movement_player(player, position_player, velocity_player);
 
-        // Player and wall collision
-        if (position_player->x <= 0) {
-            player.set<goblock::component::Position>({0, position_player->y});
-        } else if (position_player->x + size_player->width >=
-                   GetScreenWidth()) {
-            player.set<goblock::component::Position>(
-                    {static_cast<float>(GetScreenWidth()) - size_player->width,
-                            position_player->y});
-        }
+        goblock::game::GameScene::collision_player(player, position_player, size_player, velocity_player);
 
         // Ball and player collision
-        if (CheckCollisionCircleRec(Vector2{position_ball->x, position_ball->y},
-                    radius_ball->radius,
-                    Rectangle{position_player->x, position_player->y,
-                            size_player->width, size_player->height})) {
-            ball.set<goblock::component::Velocity>(
-                    {velocity_ball->x, velocity_ball->y * (-1)});
+        if (CheckCollisionCircleRec(
+                Vector2{position_ball->x, position_ball->y},
+                radius_ball->radius,
+                Rectangle{position_player->x, position_player->y, size_player->width, size_player->height})) {
+            float degree = (position_ball->x <= (position_player->x + size_player->width / 2) &&
+                            position_ball->x >= position_player->x) ?
+                               (-1) :
+                               (1);
+
+            float rad = 15;
+            auto prev = velocity_ball->x;
+            ball.set<goblock::component::Velocity>({velocity_ball->x * degree, velocity_ball->y * (-1)});
+            //            velocity_ball->x = prev;
         }
 
         EndDrawing();
     }
 
     // Cleanup
+    UnloadMusicStream(music);
     goblock::game::GameScene::cleanup();
 
     return 0;
