@@ -31,5 +31,10 @@ struct SizeCircle {
 public:
     float radius{};
 };
+
+struct Destroyed {
+public:
+    bool is_destroyed{false};
+};
 } // namespace component
 } // namespace goblock

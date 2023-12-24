@@ -9,7 +9,8 @@ namespace goblock::game {
 
 class GameScene {
 public:
-    static void init(flecs::world& game_world, flecs::entity& ball, flecs::entity& player);
+    static void
+    init(flecs::world& game_world, flecs::entity& ball, flecs::entity& player, std::vector<flecs::entity>& blocks);
 
     /// BALL
     static void render_ball(
@@ -42,8 +43,24 @@ public:
     static void collision_player(
         flecs::entity& player,
         const goblock::component::Position* position_player,
-        const goblock::component::SizeRectangle* size_player,
-        const goblock::component::Velocity* velocity_player);
+        const goblock::component::SizeRectangle* size_player);
+
+    /// BLOCKS
+    static void render_blocks(
+        flecs::entity& block,
+        const goblock::component::Position* position_block,
+        const goblock::component::SizeRectangle* size_block,
+        Color& color);
+
+    static void collision_block(
+        flecs::entity& ball,
+        flecs::entity& block,
+        const goblock::component::Position* position_block,
+        const goblock::component::SizeRectangle* size_block,
+        const goblock::component::Position* position_ball,
+        const goblock::component::SizeCircle* radius_ball,
+        const goblock::component::Velocity* velocity_ball
+        );
 
     static void cleanup();
 

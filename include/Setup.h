@@ -8,13 +8,12 @@
 #include <cassert>
 #include <cstring>
 #include <iostream>
-
-namespace goblock {
+#include <vector>
 
 /******************
  * Global Setup
  ******************/
-namespace setup {
+namespace goblock::setup {
 
 static const std::string GAME_NAME = "GoBlock";
 
@@ -25,7 +24,11 @@ enum class GameScreen : uint8_t { MAIN_MENU = 0, GAME = 1, GAME_OVER = 2, PAUSE 
 
 static GameScreen game_screen = GameScreen::MAIN_MENU;
 
-static const float GRAVITY{0.7};
-} // namespace setup
+static const float GRAVITY{0.4};
 
-} // namespace goblock
+static Color GOBLOCK_GRAY{21, 27, 45};
+static Color GOBLOCK_WHITE{255, 251, 195, 255};
+static Color GOBLOCK_BLUE{131, 158, 238, 255};
+static Color GOBLOCK_GREEN{94, 247, 109, 255};
+
+} // namespace goblock::setup
