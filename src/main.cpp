@@ -11,7 +11,7 @@ int main()
     flecs::world game_world{};
     flecs::entity ball{};
     flecs::entity player{};
-    std::vector<flecs::entity> blocks{12};
+    std::vector<flecs::entity> blocks{(unsigned)goblock::setup::BLOCK_COUNT};
     goblock::game::GameScene::init(game_world, ball, player, blocks);
 
     // Start the game process
@@ -20,73 +20,172 @@ int main()
 
     Music music = LoadMusicStream("../assets/audio/game.mp3");
     Sound sound_block = LoadSound("../assets/audio/block.mp3");
+    Sound sound_win = LoadSound("../assets/audio/victory.mp3");
+    Sound sound_lose = LoadSound("../assets/audio/lose.mp3");
 
     SetMusicVolume(music, 0.3);
-    SetSoundVolume(sound_block, 0.9);
+    SetSoundVolume(sound_block, 0.8);
+    SetSoundVolume(sound_win, 1.0);
+    SetSoundVolume(sound_lose, 0.5);
 
     SetTargetFPS(60);
 
-    goblock::setup::game_screen = goblock::setup::GameScreen::GAME;
+    goblock::setup::game_screen = goblock::setup::GameScreen::MAIN_MENU;
 
-    while (!WindowShouldClose()) {
-        BeginDrawing();
-        ClearBackground(goblock::setup::GOBLOCK_GRAY);
-        UpdateMusicStream(music);
-        PlayMusicStream(music);
-
+    while (!WindowShouldClose() && goblock::setup::game_screen != goblock::setup::GameScreen::GAME_END) {
         /// BALL
         const auto* position_ball = ball.get<goblock::component::Position>();
         const auto* radius_ball = ball.get<goblock::component::SizeCircle>();
         const auto* velocity_ball = ball.get<goblock::component::Velocity>();
-
-        goblock::game::GameScene::render_ball(position_ball, radius_ball, goblock::setup::GOBLOCK_WHITE);
-
-        goblock::game::GameScene::movement_ball(ball, position_ball, velocity_ball);
-
-        goblock::game::GameScene::collision_ball(ball, position_ball, radius_ball, velocity_ball);
-
-        /// BLOCKS
-        for (auto& block : blocks) {
-            const auto* position_block = block.get<goblock::component::Position>();
-            const auto* size_block = block.get<goblock::component::SizeRectangle>();
-
-            goblock::game::GameScene::render_blocks(block, position_block, size_block, goblock::setup::GOBLOCK_GREEN);
-            goblock::game::GameScene::collision_block(
-                ball, block, position_block, size_block, position_ball, radius_ball, velocity_ball);
-        }
 
         /// PLAYER
         const auto* position_player = player.get<goblock::component::Position>();
         const auto* size_player = player.get<goblock::component::SizeRectangle>();
         const auto* velocity_player = player.get<goblock::component::Velocity>();
 
-        goblock::game::GameScene::render_player(position_player, size_player, goblock::setup::GOBLOCK_BLUE);
+        /// BLOCKS
+        auto* position_block = blocks[0].get<goblock::component::Position>();
+        auto* size_block = blocks[0].get<goblock::component::SizeRectangle>();
+        for (auto& block : blocks) {
+            position_block = block.get<goblock::component::Position>();
+            size_block = block.get<goblock::component::SizeRectangle>();
+            goblock::game::GameScene::collision_block(
+                ball, block, position_block, size_block, position_ball, radius_ball, velocity_ball);
+        }
 
-        goblock::game::GameScene::movement_player(player, position_player, velocity_player);
+        switch (goblock::setup::game_screen) {
+        case goblock::setup::GameScreen::MAIN_MENU: {
+            if (IsKeyPressed(KEY_ENTER)) {
+                goblock::setup::game_screen = goblock::setup::GameScreen::GAME;
+            }
+            break;
+        }
+        case goblock::setup::GameScreen::GAME_OVER: {
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                goblock::setup::game_screen = goblock::setup::GameScreen::GAME_END;
+            }
+            if (IsKeyPressed(KEY_ENTER)) {
+                ball.set<goblock::component::Position>(
+                    {static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2,
+                     static_cast<float>(goblock::setup::SCREEN_HEIGHT) / 6});
+                ball.set<goblock::component::Velocity>({1, 1});
 
-        goblock::game::GameScene::collision_player(player, position_player, size_player);
+                goblock::setup::BLOCK_COUNT = 8;
+                for (auto& block : blocks) { block.set<goblock::component::Destroyed>({false}); }
 
-        // Ball and player collision
-        if (CheckCollisionCircleRec(
-                Vector2{position_ball->x, position_ball->y},
-                radius_ball->radius,
-                Rectangle{position_player->x, position_player->y, size_player->width, size_player->height})) {
-            float degree = (position_ball->x <= (position_player->x + size_player->width / 2) &&
-                            position_ball->x >= position_player->x) ?
-                               (-1.1) :
-                               (1.1);
+                goblock::setup::game_screen = goblock::setup::GameScreen::GAME;
+            }
+            break;
+        }
+        case goblock::setup::GameScreen::GAME_VICTORY: {
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                goblock::setup::game_screen = goblock::setup::GameScreen::GAME_END;
+            }
+            if (IsKeyPressed(KEY_ENTER)) {
+                ball.set<goblock::component::Position>(
+                    {static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2,
+                     static_cast<float>(goblock::setup::SCREEN_HEIGHT) / 6});
+                ball.set<goblock::component::Velocity>({1, 1});
 
-            PlaySound(sound_block);
+                goblock::setup::BLOCK_COUNT = 8;
+                for (auto& block : blocks) { block.set<goblock::component::Destroyed>({false}); }
 
-            ball.set<goblock::component::Velocity>({velocity_ball->x * degree, velocity_ball->y * (-1) * (float)1.1});
+                goblock::setup::game_screen = goblock::setup::GameScreen::GAME;
+            }
+            break;
+        }
+        case goblock::setup::GameScreen::PAUSE: {
+            TraceLog(LOG_INFO, "PAUSE");
+            break;
+        }
+        case goblock::setup::GameScreen::GAME_END: {
+            TraceLog(LOG_INFO, "GAME_END");
+            break;
+        }
+        case goblock::setup::GameScreen::GAME: {
+            goblock::game::GameScene::movement_ball(ball, position_ball, velocity_ball);
+            goblock::game::GameScene::collision_ball(ball, position_ball, radius_ball, velocity_ball);
+
+            goblock::game::GameScene::movement_player(player, position_player, velocity_player);
+            goblock::game::GameScene::collision_player(player, position_player, size_player);
+
+            /// Ball and player collision
+            goblock::game::GameScene::player_ball_collision(
+                ball, position_ball, radius_ball, velocity_ball, position_player, size_player, sound_block);
+
+            /// Ball out of screen
+            if (position_ball->y > (float)GetScreenHeight() + radius_ball->radius * 2) {
+                PlaySound(sound_lose);
+                goblock::setup::game_screen = goblock::setup::GameScreen::GAME_OVER;
+            }
+
+            /// Win
+            if (goblock::setup::BLOCK_COUNT <= 0) {
+                PlaySound(sound_win);
+                goblock::setup::game_screen = goblock::setup::GameScreen::GAME_VICTORY;
+            }
+            break;
+        }
+        default:
+            break;
+        }
+
+        BeginDrawing();
+        ClearBackground(goblock::setup::GOBLOCK_GRAY);
+
+        switch (goblock::setup::game_screen) {
+        case goblock::setup::GameScreen::MAIN_MENU: {
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), WHITE);
+            DrawText("GOBLOCK", 40, 40, 120, RED);
+            DrawText("A game by mhnpratama", 40, 170, 30, DARKBLUE);
+            DrawText("Press ENTER to start", 40, GetScreenHeight() - 100, 40, BLACK);
+            break;
+        }
+        case goblock::setup::GameScreen::GAME_OVER: {
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLACK);
+            DrawText("Game Over", GetScreenWidth() / 4, GetScreenHeight() / 4, 130, RED);
+            DrawText("Press ESCAPE to quit", GetScreenWidth() / 4, 400, 30, WHITE);
+            DrawText("Press ENTER to play again", GetScreenWidth() / 4, 500, 30, GREEN);
+            break;
+        }
+        case goblock::setup::GameScreen::GAME_VICTORY: {
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), WHITE);
+            DrawText("Victory", GetScreenWidth() / 4, GetScreenHeight() / 4, 130, GREEN);
+            DrawText("Press ESCAPE to quit", GetScreenWidth() / 4, 400, 30, RED);
+            DrawText("Press ENTER to play again", GetScreenWidth() / 4, 500, 30, ORANGE);
+            DrawText("Thanks for playing :)", GetScreenWidth() / 6 + 85, GetScreenHeight() - 200, 60, PINK);
+            break;
+        }
+        case goblock::setup::GameScreen::PAUSE: {
+            TraceLog(LOG_INFO, "PAUSE");
+            break;
+        }
+        case goblock::setup::GameScreen::GAME_END: {
+            TraceLog(LOG_INFO, "GAME_END");
+            break;
+        }
+        case goblock::setup::GameScreen::GAME: {
+            UpdateMusicStream(music);
+            PlayMusicStream(music);
+
+            goblock::game::GameScene::render_ball(position_ball, radius_ball, goblock::setup::GOBLOCK_WHITE);
+            goblock::game::GameScene::render_player(position_player, size_player, goblock::setup::GOBLOCK_BLUE);
+
+            for (auto& block : blocks) {
+                position_block = block.get<goblock::component::Position>();
+                size_block = block.get<goblock::component::SizeRectangle>();
+                goblock::game::GameScene::render_blocks(
+                    block, position_block, size_block, goblock::setup::GOBLOCK_GREEN);
+            }
+            break;
+        }
         }
 
         EndDrawing();
     }
 
     // Cleanup
-    UnloadMusicStream(music);
-    goblock::game::GameScene::cleanup();
+    goblock::game::GameScene::cleanup(music);
 
     return 0;
 }

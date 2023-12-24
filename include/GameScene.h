@@ -45,6 +45,15 @@ public:
         const goblock::component::Position* position_player,
         const goblock::component::SizeRectangle* size_player);
 
+    static void player_ball_collision(
+        flecs::entity& ball,
+        const goblock::component::Position* position_ball,
+        const goblock::component::SizeCircle* radius_ball,
+        const goblock::component::Velocity* velocity_ball,
+        const goblock::component::Position* position_player,
+        const goblock::component::SizeRectangle* size_player,
+        const Sound& sound_block);
+
     /// BLOCKS
     static void render_blocks(
         flecs::entity& block,
@@ -59,10 +68,9 @@ public:
         const goblock::component::SizeRectangle* size_block,
         const goblock::component::Position* position_ball,
         const goblock::component::SizeCircle* radius_ball,
-        const goblock::component::Velocity* velocity_ball
-        );
+        const goblock::component::Velocity* velocity_ball);
 
-    static void cleanup();
+    static void cleanup(Music& music);
 
 private:
 };

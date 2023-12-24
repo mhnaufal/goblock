@@ -20,11 +20,13 @@ static const std::string GAME_NAME = "GoBlock";
 static const int SCREEN_WIDTH = 1280;
 static const int SCREEN_HEIGHT = 800;
 
-enum class GameScreen : uint8_t { MAIN_MENU = 0, GAME = 1, GAME_OVER = 2, PAUSE = 3 };
+enum class GameScreen : uint8_t { MAIN_MENU = 0, GAME = 1, GAME_OVER = 2, PAUSE = 3, GAME_VICTORY = 4, GAME_END = 5 };
 
 static GameScreen game_screen = GameScreen::MAIN_MENU;
 
 static const float GRAVITY{0.4};
+
+extern int BLOCK_COUNT;
 
 static Color GOBLOCK_GRAY{21, 27, 45};
 static Color GOBLOCK_WHITE{255, 251, 195, 255};
