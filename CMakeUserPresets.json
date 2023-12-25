@@ -3,7 +3,5 @@
     "vendor": {
         "conan": {}
     },
-    "include": [
-        "C:/Users/Lenovo/Desktop/Projects4/CPP/go-block/build/conan\\CMakePresets.json"
-    ]
+    "include": []
 }

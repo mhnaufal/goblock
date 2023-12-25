@@ -1,6 +1,8 @@
 // goblock
 #include "Component.h"
+#include "GameOverScene.h"
 #include "GameScene.h"
+#include "GameVictoryScene.h"
 #include "Setup.h"
 
 int main()
@@ -19,16 +21,19 @@ int main()
     InitAudioDevice();
 
     Music music = LoadMusicStream("../assets/audio/game.mp3");
+    Music music_menu = LoadMusicStream("../assets/audio/menu.mp3");
     Sound sound_block = LoadSound("../assets/audio/block.mp3");
     Sound sound_win = LoadSound("../assets/audio/victory.mp3");
     Sound sound_lose = LoadSound("../assets/audio/lose.mp3");
 
     SetMusicVolume(music, 0.3);
+    SetMusicVolume(music, 0.9);
     SetSoundVolume(sound_block, 0.8);
     SetSoundVolume(sound_win, 1.0);
     SetSoundVolume(sound_lose, 0.5);
 
     SetTargetFPS(60);
+    SetExitKey(-1);
 
     goblock::setup::game_screen = goblock::setup::GameScreen::MAIN_MENU;
 
@@ -58,11 +63,14 @@ int main()
             if (IsKeyPressed(KEY_ENTER)) {
                 goblock::setup::game_screen = goblock::setup::GameScreen::GAME;
             }
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                goblock::setup::game_screen = goblock::setup::GameScreen::GAME_END;
+            }
             break;
         }
         case goblock::setup::GameScreen::GAME_OVER: {
             if (IsKeyPressed(KEY_ESCAPE)) {
-                goblock::setup::game_screen = goblock::setup::GameScreen::GAME_END;
+                goblock::setup::game_screen = goblock::setup::GameScreen::MAIN_MENU;
             }
             if (IsKeyPressed(KEY_ENTER)) {
                 ball.set<goblock::component::Position>(
@@ -79,7 +87,7 @@ int main()
         }
         case goblock::setup::GameScreen::GAME_VICTORY: {
             if (IsKeyPressed(KEY_ESCAPE)) {
-                goblock::setup::game_screen = goblock::setup::GameScreen::GAME_END;
+                goblock::setup::game_screen = goblock::setup::GameScreen::MAIN_MENU;
             }
             if (IsKeyPressed(KEY_ENTER)) {
                 ball.set<goblock::component::Position>(
@@ -119,7 +127,7 @@ int main()
                 goblock::setup::game_screen = goblock::setup::GameScreen::GAME_OVER;
             }
 
-            /// Win
+            /// Winning check
             if (goblock::setup::BLOCK_COUNT <= 0) {
                 PlaySound(sound_win);
                 goblock::setup::game_screen = goblock::setup::GameScreen::GAME_VICTORY;
@@ -135,25 +143,22 @@ int main()
 
         switch (goblock::setup::game_screen) {
         case goblock::setup::GameScreen::MAIN_MENU: {
+            UpdateMusicStream(music_menu);
+            PlayMusicStream(music_menu);
+
             DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), WHITE);
             DrawText("GOBLOCK", 40, 40, 120, RED);
             DrawText("A game by mhnpratama", 40, 170, 30, DARKBLUE);
-            DrawText("Press ENTER to start", 40, GetScreenHeight() - 100, 40, BLACK);
+            DrawText("Press ENTER to start", 40, GetScreenHeight() - 120, 40, BLACK);
+            DrawText("Press Esc to quit", 40, GetScreenHeight() - 70, 20, DARKGRAY);
             break;
         }
         case goblock::setup::GameScreen::GAME_OVER: {
-            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLACK);
-            DrawText("Game Over", GetScreenWidth() / 4, GetScreenHeight() / 4, 130, RED);
-            DrawText("Press ESCAPE to quit", GetScreenWidth() / 4, 400, 30, WHITE);
-            DrawText("Press ENTER to play again", GetScreenWidth() / 4, 500, 30, GREEN);
+            goblock::game_over::GameOverScene::show_scene();
             break;
         }
         case goblock::setup::GameScreen::GAME_VICTORY: {
-            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), WHITE);
-            DrawText("Victory", GetScreenWidth() / 4, GetScreenHeight() / 4, 130, GREEN);
-            DrawText("Press ESCAPE to quit", GetScreenWidth() / 4, 400, 30, RED);
-            DrawText("Press ENTER to play again", GetScreenWidth() / 4, 500, 30, ORANGE);
-            DrawText("Thanks for playing :)", GetScreenWidth() / 6 + 85, GetScreenHeight() - 200, 60, PINK);
+            goblock::game_victory::GameVictoryScene::show_scene();
             break;
         }
         case goblock::setup::GameScreen::PAUSE: {
@@ -179,13 +184,16 @@ int main()
             }
             break;
         }
+        default:
+            break;
         }
 
         EndDrawing();
     }
 
     // Cleanup
-    goblock::game::GameScene::cleanup(music);
+    std::vector musics{music, music_menu};
+    goblock::game::GameScene::cleanup(musics);
 
     return 0;
 }

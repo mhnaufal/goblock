@@ -1,54 +1,62 @@
-# Brawlhahaha 🐚
+# GoBlock
 
-Fight with your life because one strike from the enemy can make you dead!
+An old-school block destroyer game.
+
+## Dependency
+
+1. [Conan](https://docs.conan.io/2.0/reference/commands/install.html)
+2. [CMake]()
+3. [Raylib](https://www.raylib.com/)
+4. [Flecs](https://www.flecs.dev/)
 
 ## Installation
 
 1. Clone
-2. `make run`
-3. Enjoy!
+2. `cd goblock`
+3. Install all deps using Conan
+
+```shell
+conan install . --output-folder=build --build=missing --settings=compiler.cppstd=17
+```
+
+4. Configure CMake
+
+```shell
+mkdir build
+cd build
+cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
+```
+
+5. Build
+
+```shell
+cmake --build . --config Release
+```
+
+6. Enjoy!
+
+```shell
+./Release/goblock.exe
+```
 
 ---
 
 ## Controls
 
-- `W A S D` : movement and jump
-- `j` : light attack
-- `k` : heavy attack
-- `l` : block
+- `A D` : movement 
 
 ---
 
 ## Objective
 
-Win the match!
-
----
-
-## TODO
-
-1. Move out to individual function
-2. Checking for load texture error
-3. Player animation
-4. Player movement
-5. Game engine model-like
-6. Collision
-
----
-
-## Notes
-
----
-
-## References
-
-1. https://lazyfoo.net/tutorials/SDL/index2.php
-2. https://wiki.libsdl.org/SDL2/
-3. https://www.parallelrealities.co.uk/tutorials
-4. https://www.youtube.com/playlist?list=PL_xRyXins848nDj2v-TJYahzvs-XW9sVV
+Destroy all the blocks
 
 ---
 
 ### License
 
 Open-source
+
+---
+
+#### 💖 Created special for [Ifa](https://www.linkedin.com/in/qhoifa-fawziah-aulia-keysha/)

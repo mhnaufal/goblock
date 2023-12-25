@@ -70,7 +70,7 @@ public:
         const goblock::component::SizeCircle* radius_ball,
         const goblock::component::Velocity* velocity_ball);
 
-    static void cleanup(Music& music);
+    static void cleanup(std::vector<Music>& musics);
 
 private:
 };

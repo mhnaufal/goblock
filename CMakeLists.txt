@@ -22,6 +22,8 @@ add_executable(${PROJECT_NAME}
 		src/main.cpp
 		src/System.cpp
 		src/GameScene.cpp
+		src/GameOverScene.cpp
+		src/GameVictoryScene.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")

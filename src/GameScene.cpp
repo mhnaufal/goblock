@@ -16,7 +16,7 @@ void GameScene::init(
     ball = goblock::system::create_object(game_world, "ball", ball_position, ball_size, ball_speed);
 
     // initialize player
-    goblock::component::SizeRectangle player_size{400, 30};
+    goblock::component::SizeRectangle player_size{350, 30};
     goblock::component::Position player_position{
         static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2 - (player_size.width / 2),
         goblock::setup::SCREEN_HEIGHT - 80};
@@ -30,8 +30,7 @@ void GameScene::init(
     for (int i = 0; i < blocks.size(); ++i) {
         goblock::component::SizeRectangle block_size{70, 30};
         goblock::component::Position block_position{
-            static_cast<float>(110 + (i * 100)),
-            //            static_cast<float>(50 + (i * 20)),
+            static_cast<float>(225 + (i * 110)),
             200,
         };
 
@@ -75,7 +74,8 @@ void GameScene::collision_ball(
     }
     if (position_ball->x + radius_ball->radius >= (float)GetScreenWidth() ||
         position_ball->x - radius_ball->radius <= 0) {
-        ball.set<goblock::component::Velocity>({velocity_ball->x * (-1), velocity_ball->y * (-1) * (float)1.2});
+        ball.set<goblock::component::Velocity>(
+            {velocity_ball->x * (float)1.1 * (-1), velocity_ball->y / (float)1.2 * (-1)});
     }
     else {
         ball.set<goblock::component::Velocity>({velocity_ball->x, velocity_ball->y + goblock::setup::GRAVITY});
@@ -191,10 +191,10 @@ void GameScene::player_ball_collision(
     }
 }
 
-void GameScene::cleanup(Music& music)
+void GameScene::cleanup(std::vector<Music>& musics)
 {
     goblock::setup::game_screen = goblock::setup::GameScreen::GAME_END;
-    UnloadMusicStream(music);
+    for (const auto& music : musics) { UnloadMusicStream(music); }
     CloseAudioDevice();
     CloseWindow();
     TraceLog(LOG_INFO, "Stopping GoBlock...");
