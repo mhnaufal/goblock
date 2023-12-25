@@ -2,6 +2,8 @@
 
 An old-school block destroyer game.
 
+![Alt Text](./assets/preview-goblock.gif)
+
 ## Dependency
 
 1. [Conan](https://docs.conan.io/2.0/reference/commands/install.html)
