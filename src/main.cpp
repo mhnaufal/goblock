@@ -8,6 +8,7 @@
 int main()
 {
     TraceLog(LOG_INFO, "Starting GoBlock...");
+    SetTraceLogLevel(LOG_NONE);
 
     // Initialize world, entity, object, etc
     flecs::world game_world{};
@@ -25,6 +26,8 @@ int main()
     Sound sound_block = LoadSound("../assets/audio/block.mp3");
     Sound sound_win = LoadSound("../assets/audio/victory.mp3");
     Sound sound_lose = LoadSound("../assets/audio/lose.mp3");
+
+    std::vector musics{music, music_menu};
 
     SetMusicVolume(music, 0.3);
     SetMusicVolume(music, 0.9);
@@ -130,16 +133,10 @@ int main()
                 sound_block);
 
             /// Ball out of screen
-            if (position_ball->y > (float)GetScreenHeight() + radius_ball->radius) {
-                PlaySound(sound_lose);
-                goblock::setup::game_screen = goblock::setup::GameScreen::GAME_OVER;
-            }
+            goblock::game::GameScene::ball_out(position_ball, radius_ball, sound_lose, goblock::setup::game_screen);
 
             /// Winning check
-            if (goblock::setup::BLOCK_COUNT <= 0) {
-                PlaySound(sound_win);
-                goblock::setup::game_screen = goblock::setup::GameScreen::GAME_VICTORY;
-            }
+            goblock::game::GameScene::winning_check(sound_win, goblock::setup::game_screen);
             break;
         }
         default:
@@ -200,7 +197,6 @@ int main()
     }
 
     // Cleanup
-    std::vector musics{music, music_menu};
     goblock::game::GameScene::cleanup(musics);
 
     return 0;

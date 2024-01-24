@@ -3,11 +3,10 @@
 // STL
 #include <iostream>
 
-namespace goblock {
 /******************
  * Component
  ******************/
-namespace component {
+namespace goblock::component {
 
 struct Position {
 public:
@@ -42,5 +41,4 @@ struct Destroyed {
 public:
     bool is_destroyed{false};
 };
-} // namespace component
-} // namespace goblock
+} // namespace goblock::component

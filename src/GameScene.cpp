@@ -17,7 +17,7 @@ void GameScene::init(
     ball = goblock::system::create_object(game_world, "ball", ball_position, ball_size, ball_speed, ball_direction);
 
     // initialize player
-    goblock::component::SizeRectangle player_size{200, 30};
+    goblock::component::SizeRectangle player_size{250, 30};
     goblock::component::Position player_position{
         static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2 - (player_size.width / 2),
         goblock::setup::SCREEN_HEIGHT - 80};
@@ -29,9 +29,9 @@ void GameScene::init(
     component::Destroyed is_destroyed{};
     is_destroyed.is_destroyed = false;
     for (int i = 0; i < blocks.size(); ++i) {
-        goblock::component::SizeRectangle block_size{80, 30};
+        goblock::component::SizeRectangle block_size{90, 25};
         goblock::component::Position block_position{
-            static_cast<float>(220 + (i * 110)),
+            static_cast<float>(200 + (i * 110)),
             200,
         };
 
@@ -202,6 +202,27 @@ void GameScene::cleanup(std::vector<Music>& musics)
     CloseAudioDevice();
     CloseWindow();
     TraceLog(LOG_INFO, "Stopping GoBlock...");
+}
+
+void GameScene::ball_out(
+    const goblock::component::Position* position_ball,
+    const goblock::component::SizeCircle* radius_ball,
+    Sound& sound_lose,
+    goblock::setup::GameScreen& game_screen)
+{
+    if (position_ball->y + radius_ball->radius >= (float)GetScreenHeight()) {
+        DrawText("WW", 100, 300, 40, WHITE);
+        PlaySound(sound_lose);
+        game_screen = goblock::setup::GameScreen::GAME_OVER;
+    }
+}
+
+void GameScene::winning_check(Sound& sound_win, goblock::setup::GameScreen& game_screen)
+{
+    if (goblock::setup::BLOCK_COUNT <= 0) {
+        PlaySound(sound_win);
+        game_screen = goblock::setup::GameScreen::GAME_VICTORY;
+    }
 }
 
 } // namespace goblock::game
