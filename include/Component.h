@@ -21,6 +21,12 @@ public:
     float y{};
 };
 
+struct Direction {
+public:
+    float x{};
+    float y{};
+};
+
 struct SizeRectangle {
 public:
     float width{};

@@ -39,12 +39,14 @@ flecs::entity create_object(
     const std::string& name,
     const goblock::component::Position& pos,
     const goblock::component::SizeCircle& size,
-    const goblock::component::Velocity& vel)
+    const goblock::component::Velocity& vel,
+    const goblock::component::Direction& dir)
 {
     auto object = game_world.entity(name.c_str());
     object.set<goblock::component::Position>({pos.x, pos.y});
     object.set<goblock::component::SizeCircle>({size.radius});
     object.set<goblock::component::Velocity>({vel.x, vel.y});
+    object.set<goblock::component::Direction>({dir.x, dir.y});
     return object;
 }
 

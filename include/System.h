@@ -37,6 +37,7 @@ flecs::entity create_object(
     const std::string& name,
     const component::Position& pos,
     const component::SizeCircle& size,
-    const component::Velocity& vel);
+    const component::Velocity& vel,
+    const component::Direction& dir);
 
 } // namespace goblock::system

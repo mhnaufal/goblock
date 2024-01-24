@@ -21,13 +21,16 @@ public:
     static void movement_ball(
         flecs::entity& ball,
         const goblock::component::Position* position_ball,
-        const goblock::component::Velocity* velocity_ball);
+        const goblock::component::Velocity* velocity_ball,
+        const goblock::component::Direction* direction_ball
+        );
 
     static void collision_ball(
         flecs::entity& ball,
         const goblock::component::Position* position_ball,
         const goblock::component::SizeCircle* radius_ball,
-        const goblock::component::Velocity* velocity_ball);
+        const goblock::component::Velocity* velocity_ball,
+        const goblock::component::Direction* direction_ball);
 
     /// PLAYER
     static void render_player(
@@ -50,6 +53,7 @@ public:
         const goblock::component::Position* position_ball,
         const goblock::component::SizeCircle* radius_ball,
         const goblock::component::Velocity* velocity_ball,
+        const goblock::component::Direction* direction_ball,
         const goblock::component::Position* position_player,
         const goblock::component::SizeRectangle* size_player,
         const Sound& sound_block);
@@ -68,7 +72,8 @@ public:
         const goblock::component::SizeRectangle* size_block,
         const goblock::component::Position* position_ball,
         const goblock::component::SizeCircle* radius_ball,
-        const goblock::component::Velocity* velocity_ball);
+        const goblock::component::Velocity* velocity_ball,
+        const goblock::component::Direction* direction_ball);
 
     static void cleanup(std::vector<Music>& musics);
 

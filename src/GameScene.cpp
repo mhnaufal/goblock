@@ -10,13 +10,14 @@ void GameScene::init(
     // initialize ball
     goblock::component::Position ball_position{
         static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2, static_cast<float>(goblock::setup::SCREEN_HEIGHT) / 6};
-    goblock::component::SizeCircle ball_size{12};
-    goblock::component::Velocity ball_speed{0.2, 0.2};
+    goblock::component::SizeCircle ball_size{14};
+    goblock::component::Velocity ball_speed{setup::BALL_SPEED, setup::BALL_SPEED};
+    goblock::component::Direction ball_direction{1, 1};
 
-    ball = goblock::system::create_object(game_world, "ball", ball_position, ball_size, ball_speed);
+    ball = goblock::system::create_object(game_world, "ball", ball_position, ball_size, ball_speed, ball_direction);
 
     // initialize player
-    goblock::component::SizeRectangle player_size{350, 30};
+    goblock::component::SizeRectangle player_size{200, 30};
     goblock::component::Position player_position{
         static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2 - (player_size.width / 2),
         goblock::setup::SCREEN_HEIGHT - 80};
@@ -28,9 +29,9 @@ void GameScene::init(
     component::Destroyed is_destroyed{};
     is_destroyed.is_destroyed = false;
     for (int i = 0; i < blocks.size(); ++i) {
-        goblock::component::SizeRectangle block_size{70, 30};
+        goblock::component::SizeRectangle block_size{80, 30};
         goblock::component::Position block_position{
-            static_cast<float>(225 + (i * 110)),
+            static_cast<float>(220 + (i * 110)),
             200,
         };
 
@@ -50,35 +51,30 @@ void GameScene::render_ball(
 void GameScene::movement_ball(
     flecs::entity& ball,
     const goblock::component::Position* position_ball,
-    const goblock::component::Velocity* velocity_ball)
+    const goblock::component::Velocity* velocity_ball,
+    const goblock::component::Direction* direction_ball)
 {
     // Ball movement
-    ball.set<goblock::component::Position>({
-        position_ball->x + velocity_ball->x,
-        position_ball->y + velocity_ball->y,
-    });
+    ball.set<goblock::component::Position>({position_ball->x + velocity_ball->x, position_ball->y + velocity_ball->y});
 }
 
 void GameScene::collision_ball(
     flecs::entity& ball,
     const goblock::component::Position* position_ball,
     const goblock::component::SizeCircle* radius_ball,
-    const goblock::component::Velocity* velocity_ball)
+    const goblock::component::Velocity* velocity_ball,
+    const goblock::component::Direction* direction_ball)
 {
     // Ball & wall collision
-    int rand_x_direction = GetRandomValue(-1, 1) * (360 / 150);
+    if (position_ball->x - radius_ball->radius <= 0 ||
+        position_ball->x + radius_ball->radius >= (float)GetScreenWidth()) {
+        ball.set<goblock::component::Velocity>({velocity_ball->x * -1, velocity_ball->y});
+        ball.set<goblock::component::Direction>({direction_ball->x * -1, direction_ball->y});
+    }
+
     if (position_ball->y - radius_ball->radius <= 0) {
-        ball.set<goblock::component::Velocity>(
-            {velocity_ball->x * (float)rand_x_direction, (velocity_ball->y / (float)1.4) * (-1)});
-        ball.set<goblock::component::Position>({position_ball->x, position_ball->y + velocity_ball->y});
-    }
-    if (position_ball->x + radius_ball->radius >= (float)GetScreenWidth() ||
-        position_ball->x - radius_ball->radius <= 0) {
-        ball.set<goblock::component::Velocity>(
-            {velocity_ball->x * (float)1.1 * (-1), velocity_ball->y / (float)1.2 * (-1)});
-    }
-    else {
-        ball.set<goblock::component::Velocity>({velocity_ball->x, velocity_ball->y + goblock::setup::GRAVITY});
+        ball.set<goblock::component::Velocity>({velocity_ball->x, velocity_ball->y * (-1)});
+        ball.set<goblock::component::Direction>({direction_ball->x, 1});
     }
 }
 
@@ -150,18 +146,20 @@ void GameScene::collision_block(
     const goblock::component::SizeRectangle* size_block,
     const goblock::component::Position* position_ball,
     const goblock::component::SizeCircle* radius_ball,
-    const goblock::component::Velocity* velocity_ball)
+    const goblock::component::Velocity* velocity_ball,
+    const goblock::component::Direction* direction_ball)
 {
     const auto* is_destroyed = block.get<component::Destroyed>();
     if (is_destroyed->is_destroyed) {
         return;
     }
 
+    // TODO: collision from top and bottom are different
     if (CheckCollisionCircleRec(
             Vector2{position_ball->x, position_ball->y},
             radius_ball->radius,
             Rectangle{position_block->x, position_block->y, size_block->width, size_block->height})) {
-        ball.set<goblock::component::Velocity>({velocity_ball->x * (float)1.2, (velocity_ball->y / (float)1.3) * (-1)});
+        ball.set<goblock::component::Velocity>({velocity_ball->x, velocity_ball->y * -1});
         block.set<goblock::component::Destroyed>({true});
         goblock::setup::BLOCK_COUNT -= 1;
     }
@@ -172,6 +170,7 @@ void GameScene::player_ball_collision(
     const goblock::component::Position* position_ball,
     const goblock::component::SizeCircle* radius_ball,
     const goblock::component::Velocity* velocity_ball,
+    const goblock::component::Direction* direction_ball,
     const goblock::component::Position* position_player,
     const goblock::component::SizeRectangle* size_player,
     const Sound& sound_block)
@@ -180,14 +179,19 @@ void GameScene::player_ball_collision(
             Vector2{position_ball->x, position_ball->y},
             radius_ball->radius,
             Rectangle{position_player->x, position_player->y, size_player->width, size_player->height})) {
-        float degree = (position_ball->x <= (position_player->x + size_player->width / 2) &&
-                        position_ball->x >= position_player->x) ?
-                           (-3.5) :
-                           (3.5);
-
         PlaySound(sound_block);
 
-        ball.set<goblock::component::Velocity>({velocity_ball->x + degree, (velocity_ball->y) * (-1)});
+        // TODO: iff half part of player
+        auto player_center = position_player->x + size_player->width / 2;
+        auto distance_to_center = position_ball->x - player_center;
+        auto percent_width = distance_to_center / size_player->width;
+        auto angle = percent_width * 90;
+        auto angle_radian = angle * DEG2RAD;
+        auto new_x_velocity = sin(angle_radian) * setup::BALL_SPEED * 1.5f;
+        auto new_y_velocity = cos(angle_radian) * setup::BALL_SPEED * -1.5f;
+
+        ball.set<goblock::component::Velocity>({new_x_velocity, new_y_velocity});
+        ball.set<goblock::component::Direction>({direction_ball->x, -1});
     }
 }
 

@@ -3,6 +3,7 @@
 // Third-party
 #include <flecs.h>
 #include <raylib.h>
+#include <raymath.h>
 
 // STL
 #include <cassert>
@@ -25,6 +26,7 @@ enum class GameScreen : uint8_t { MAIN_MENU = 0, GAME = 1, GAME_OVER = 2, PAUSE 
 static GameScreen game_screen = GameScreen::MAIN_MENU;
 
 static const float GRAVITY{0.4};
+static const float BALL_SPEED{10};
 
 extern int BLOCK_COUNT;
 

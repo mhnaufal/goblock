@@ -42,6 +42,7 @@ int main()
         const auto* position_ball = ball.get<goblock::component::Position>();
         const auto* radius_ball = ball.get<goblock::component::SizeCircle>();
         const auto* velocity_ball = ball.get<goblock::component::Velocity>();
+        const auto* direction_ball = ball.get<goblock::component::Direction>();
 
         /// PLAYER
         const auto* position_player = player.get<goblock::component::Position>();
@@ -55,7 +56,7 @@ int main()
             position_block = block.get<goblock::component::Position>();
             size_block = block.get<goblock::component::SizeRectangle>();
             goblock::game::GameScene::collision_block(
-                ball, block, position_block, size_block, position_ball, radius_ball, velocity_ball);
+                ball, block, position_block, size_block, position_ball, radius_ball, velocity_ball, direction_ball);
         }
 
         switch (goblock::setup::game_screen) {
@@ -76,7 +77,7 @@ int main()
                 ball.set<goblock::component::Position>(
                     {static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2,
                      static_cast<float>(goblock::setup::SCREEN_HEIGHT) / 6});
-                ball.set<goblock::component::Velocity>({1, 1});
+                ball.set<goblock::component::Velocity>({goblock::setup::BALL_SPEED, goblock::setup::BALL_SPEED});
 
                 goblock::setup::BLOCK_COUNT = 8;
                 for (auto& block : blocks) { block.set<goblock::component::Destroyed>({false}); }
@@ -93,7 +94,7 @@ int main()
                 ball.set<goblock::component::Position>(
                     {static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2,
                      static_cast<float>(goblock::setup::SCREEN_HEIGHT) / 6});
-                ball.set<goblock::component::Velocity>({1, 1});
+                ball.set<goblock::component::Velocity>({goblock::setup::BALL_SPEED, goblock::setup::BALL_SPEED});
 
                 goblock::setup::BLOCK_COUNT = 8;
                 for (auto& block : blocks) { block.set<goblock::component::Destroyed>({false}); }
@@ -111,18 +112,25 @@ int main()
             break;
         }
         case goblock::setup::GameScreen::GAME: {
-            goblock::game::GameScene::movement_ball(ball, position_ball, velocity_ball);
-            goblock::game::GameScene::collision_ball(ball, position_ball, radius_ball, velocity_ball);
-
             goblock::game::GameScene::movement_player(player, position_player, velocity_player);
+            goblock::game::GameScene::movement_ball(ball, position_ball, velocity_ball, direction_ball);
+
             goblock::game::GameScene::collision_player(player, position_player, size_player);
+            goblock::game::GameScene::collision_ball(ball, position_ball, radius_ball, velocity_ball, direction_ball);
 
             /// Ball and player collision
             goblock::game::GameScene::player_ball_collision(
-                ball, position_ball, radius_ball, velocity_ball, position_player, size_player, sound_block);
+                ball,
+                position_ball,
+                radius_ball,
+                velocity_ball,
+                direction_ball,
+                position_player,
+                size_player,
+                sound_block);
 
             /// Ball out of screen
-            if (position_ball->y > (float)GetScreenHeight() + radius_ball->radius * 2) {
+            if (position_ball->y > (float)GetScreenHeight() + radius_ball->radius) {
                 PlaySound(sound_lose);
                 goblock::setup::game_screen = goblock::setup::GameScreen::GAME_OVER;
             }
