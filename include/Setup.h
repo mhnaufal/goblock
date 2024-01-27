@@ -31,6 +31,8 @@ static const float GRAVITY{0.4};
 static const float BALL_SPEED{8};
 
 extern int BLOCK_COUNT;
+extern int SCORE;
+extern int LIVE;
 
 static Color GOBLOCK_GRAY{21, 27, 45};
 static Color GOBLOCK_WHITE{255, 251, 195, 255};

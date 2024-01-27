@@ -29,8 +29,8 @@ int main()
 
     std::vector musics{music, music_menu};
 
-    SetMusicVolume(music, 0.3);
     SetMusicVolume(music, 0.9);
+    SetMusicVolume(music_menu, 0.2);
     SetSoundVolume(sound_block, 0.8);
     SetSoundVolume(sound_win, 1.0);
     SetSoundVolume(sound_lose, 0.5);
@@ -83,6 +83,8 @@ int main()
                 ball.set<goblock::component::Velocity>({goblock::setup::BALL_SPEED, goblock::setup::BALL_SPEED});
 
                 goblock::setup::BLOCK_COUNT = 8;
+                goblock::setup::LIVE = 3;
+                goblock::setup::SCORE = 0;
                 for (auto& block : blocks) { block.set<goblock::component::Destroyed>({false}); }
 
                 goblock::setup::game_screen = goblock::setup::GameScreen::GAME;
@@ -100,6 +102,8 @@ int main()
                 ball.set<goblock::component::Velocity>({goblock::setup::BALL_SPEED, goblock::setup::BALL_SPEED});
 
                 goblock::setup::BLOCK_COUNT = 8;
+                goblock::setup::LIVE = 3;
+                goblock::setup::SCORE = 0;
                 for (auto& block : blocks) { block.set<goblock::component::Destroyed>({false}); }
 
                 goblock::setup::game_screen = goblock::setup::GameScreen::GAME;
@@ -133,10 +137,14 @@ int main()
                 sound_block);
 
             /// Ball out of screen
-            goblock::game::GameScene::ball_out(position_ball, radius_ball, sound_lose, goblock::setup::game_screen);
+            goblock::game::GameScene::ball_out(
+                position_ball, radius_ball, sound_lose, goblock::setup::game_screen, goblock::setup::LIVE);
 
             /// Winning check
             goblock::game::GameScene::winning_check(sound_win, goblock::setup::game_screen);
+
+            /// Debug info
+            goblock::game::GameScene::debug_info(position_ball, velocity_ball, (int)goblock::setup::BLOCK_COUNT);
             break;
         }
         default:

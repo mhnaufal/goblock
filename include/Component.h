@@ -41,4 +41,13 @@ struct Destroyed {
 public:
     bool is_destroyed{false};
 };
+
+struct DebugInfo {
+public:
+    Position ball_position;
+    Velocity ball_velocity;
+    Position player_position;
+    Velocity player_velocity;
+};
+
 } // namespace goblock::component

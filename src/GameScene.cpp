@@ -1,6 +1,8 @@
 #include "GameScene.h"
 
 int goblock::setup::BLOCK_COUNT{8};
+int goblock::setup::SCORE{0};
+int goblock::setup::LIVE{3};
 
 namespace goblock::game {
 
@@ -54,7 +56,6 @@ void GameScene::movement_ball(
     const goblock::component::Velocity* velocity_ball,
     const goblock::component::Direction* direction_ball)
 {
-    // Ball movement
     ball.set<goblock::component::Position>({position_ball->x + velocity_ball->x, position_ball->y + velocity_ball->y});
 }
 
@@ -162,6 +163,7 @@ void GameScene::collision_block(
         ball.set<goblock::component::Velocity>({velocity_ball->x, velocity_ball->y * -1});
         block.set<goblock::component::Destroyed>({true});
         goblock::setup::BLOCK_COUNT -= 1;
+        goblock::setup::SCORE += 1;
     }
 }
 
@@ -181,7 +183,6 @@ void GameScene::player_ball_collision(
             Rectangle{position_player->x, position_player->y, size_player->width, size_player->height})) {
         PlaySound(sound_block);
 
-        // TODO: iff half part of player
         auto player_center = position_player->x + size_player->width / 2;
         auto distance_to_center = position_ball->x - player_center;
         auto percent_width = distance_to_center / size_player->width;
@@ -195,25 +196,25 @@ void GameScene::player_ball_collision(
     }
 }
 
-void GameScene::cleanup(std::vector<Music>& musics)
-{
-    goblock::setup::game_screen = goblock::setup::GameScreen::GAME_END;
-    for (const auto& music : musics) { UnloadMusicStream(music); }
-    CloseAudioDevice();
-    CloseWindow();
-    TraceLog(LOG_INFO, "Stopping GoBlock...");
-}
-
 void GameScene::ball_out(
     const goblock::component::Position* position_ball,
     const goblock::component::SizeCircle* radius_ball,
     Sound& sound_lose,
-    goblock::setup::GameScreen& game_screen)
+    goblock::setup::GameScreen& game_screen,
+    int& lives)
 {
     if (position_ball->y + radius_ball->radius >= (float)GetScreenHeight()) {
-        DrawText("WW", 100, 300, 40, WHITE);
         PlaySound(sound_lose);
         game_screen = goblock::setup::GameScreen::GAME_OVER;
+        return;
+
+        // TODO: reset ball
+        lives--;
+        if (lives <= 0) {
+            game_screen = goblock::setup::GameScreen::GAME_OVER;
+        }
+        else {
+        }
     }
 }
 
@@ -223,6 +224,29 @@ void GameScene::winning_check(Sound& sound_win, goblock::setup::GameScreen& game
         PlaySound(sound_win);
         game_screen = goblock::setup::GameScreen::GAME_VICTORY;
     }
+}
+
+void GameScene::debug_info(
+    const goblock::component::Position* position_ball,
+    const goblock::component::Velocity* velocity_ball,
+    const int& block_count)
+{
+    DrawText(TextFormat("Ball x: %2.2f", position_ball->x / 10), 0, 0, 20, WHITE);
+    DrawText(TextFormat("Ball y: %2.2f", position_ball->y / 10), 0, 25, 20, WHITE);
+
+    DrawText(TextFormat("Ball Vx: %2.2f", velocity_ball->x / 10), 0, 50, 20, WHITE);
+    DrawText(TextFormat("Ball Vy: %2.2f", velocity_ball->y / 10), 0, 75, 20, WHITE);
+
+    DrawText(TextFormat("Block: %2.2f", block_count), 0, 100, 20, WHITE);
+}
+
+void GameScene::cleanup(std::vector<Music>& musics)
+{
+    goblock::setup::game_screen = goblock::setup::GameScreen::GAME_END;
+    for (const auto& music : musics) { UnloadMusicStream(music); }
+    CloseAudioDevice();
+    CloseWindow();
+    TraceLog(LOG_INFO, "Stopping GoBlock...");
 }
 
 } // namespace goblock::game

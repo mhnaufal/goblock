@@ -35,7 +35,8 @@ public:
         const goblock::component::Position* position_ball,
         const goblock::component::SizeCircle* radius_ball,
         Sound& sound_lose,
-        goblock::setup::GameScreen& game_screen);
+        goblock::setup::GameScreen& game_screen,
+        int& lives);
 
     /// PLAYER
     static void render_player(
@@ -82,6 +83,11 @@ public:
 
     // Etc
     static void winning_check(Sound& sound_win, goblock::setup::GameScreen& game_screen);
+
+    static void debug_info(
+        const goblock::component::Position* position_ball,
+        const goblock::component::Velocity* velocity_ball,
+        const int& block_count);
 
     static void cleanup(std::vector<Music>& musics);
 
