@@ -1,9 +1,9 @@
 #pragma once
 
 // goblock
-#include "Component.h"
-#include "Setup.h"
-#include "System.h"
+#include <Component.h>
+#include <Setup.h>
+#include <System.h>
 
 namespace goblock::game {
 
@@ -58,7 +58,7 @@ public:
         flecs::entity& ball,
         const goblock::component::Position* position_ball,
         const goblock::component::SizeCircle* radius_ball,
-        const goblock::component::Velocity* velocity_ball,
+        [[maybe_unused]] const goblock::component::Velocity* velocity_ball,
         const goblock::component::Direction* direction_ball,
         const goblock::component::Position* position_player,
         const goblock::component::SizeRectangle* size_player,

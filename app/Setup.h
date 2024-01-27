@@ -27,7 +27,7 @@ enum class LevelScreen : uint8_t { LEVEL_1 = 1, LEVEL_2 = 2 };
 static GameScreen game_screen = GameScreen::MAIN_MENU;
 static LevelScreen level_screen = LevelScreen::LEVEL_1;
 
-static const float GRAVITY{0.4};
+static const float GRAVITY{0.4f};
 static const float BALL_SPEED{8};
 
 extern int BLOCK_COUNT;

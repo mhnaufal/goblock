@@ -1,32 +1,30 @@
 cmake_minimum_required(VERSION 3.23)
 
 project(
-	goblock
-	VERSION 1.0
-	DESCRIPTION "Go-Block: A simple block destroyer game"
-	LANGUAGES CXX
+        goblock
+        VERSION 1.0
+        DESCRIPTION "Go-Block: A simple blocks destroyer game!"
+        LANGUAGES CXX
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE CACHE BOOL "" FORCE)
 set(CMAKE_CXX_STANDARD 17)
 
-if(MSVC)
-	set(CMAKE_CXX_FLAGS "/W4 /permissive-")
-endif()
+if (MSVC)
+    set(CMAKE_CXX_FLAGS "/W4 /permissive-")
+endif ()
 
-if(CMAKE_GNU_COMPILER_ID)
-	set(CMAKE_CXX_FLAGS "-Wextra -Wall -Wpedantic")
-endif()
+if (CMAKE_GNU_COMPILER_ID)
+    set(CMAKE_CXX_FLAGS "-Wextra -Wall -Wpedantic")
+endif ()
 
-add_executable(${PROJECT_NAME}
-		src/main.cpp
-		src/System.cpp
-		src/GameScene.cpp
-		src/GameOverScene.cpp
-		src/GameVictoryScene.cpp
-)
+add_subdirectory(scene)
+add_subdirectory(system)
 
-target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+add_executable(${PROJECT_NAME} app/main.cpp app/Setup.h)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC system scene)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR})
 
 #######################
 # Raylib
@@ -52,6 +50,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${flecs_INCLUDE_DIRS})
 #######################
 # MSVC
 #######################
-if(MSVC)
-	target_link_libraries(${PROJECT_NAME} PUBLIC wsock32 ws2_32)
-endif()
+if (MSVC)
+    target_link_libraries(${PROJECT_NAME} PUBLIC wsock32 ws2_32)
+endif ()

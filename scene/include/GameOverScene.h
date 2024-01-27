@@ -1,9 +1,9 @@
 #pragma once
 
 // goblock
-#include "Component.h"
-#include "Setup.h"
-#include "System.h"
+#include <Component.h>
+#include <Setup.h>
+#include <System.h>
 
 namespace goblock::game_over {
 

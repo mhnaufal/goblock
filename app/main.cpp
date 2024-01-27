@@ -29,11 +29,11 @@ int main()
 
     std::vector musics{music, music_menu};
 
-    SetMusicVolume(music, 0.9);
-    SetMusicVolume(music_menu, 0.2);
-    SetSoundVolume(sound_block, 0.8);
-    SetSoundVolume(sound_win, 1.0);
-    SetSoundVolume(sound_lose, 0.5);
+    SetMusicVolume(music, 0.9f);
+    SetMusicVolume(music_menu, 0.2f);
+    SetSoundVolume(sound_block, 0.8f);
+    SetSoundVolume(sound_win, 1.0f);
+    SetSoundVolume(sound_lose, 0.5f);
 
     SetTargetFPS(60);
     SetExitKey(-1);

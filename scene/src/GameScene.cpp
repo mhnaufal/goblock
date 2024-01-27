@@ -57,6 +57,7 @@ void GameScene::movement_ball(
     const goblock::component::Direction* direction_ball)
 {
     ball.set<goblock::component::Position>({position_ball->x + velocity_ball->x, position_ball->y + velocity_ball->y});
+    ball.set<goblock::component::Direction>({direction_ball->x, direction_ball->y});
 }
 
 void GameScene::collision_ball(
@@ -161,7 +162,9 @@ void GameScene::collision_block(
             radius_ball->radius,
             Rectangle{position_block->x, position_block->y, size_block->width, size_block->height})) {
         ball.set<goblock::component::Velocity>({velocity_ball->x, velocity_ball->y * -1});
+        ball.set<goblock::component::Direction>({direction_ball->x * 1, direction_ball->y * -1});
         block.set<goblock::component::Destroyed>({true});
+
         goblock::setup::BLOCK_COUNT -= 1;
         goblock::setup::SCORE += 1;
     }
@@ -171,7 +174,7 @@ void GameScene::player_ball_collision(
     flecs::entity& ball,
     const goblock::component::Position* position_ball,
     const goblock::component::SizeCircle* radius_ball,
-    const goblock::component::Velocity* velocity_ball,
+    [[maybe_unused]] const goblock::component::Velocity* velocity_ball,
     const goblock::component::Direction* direction_ball,
     const goblock::component::Position* position_player,
     const goblock::component::SizeRectangle* size_player,
