@@ -1,6 +1,5 @@
 #include "GameScene.h"
 
-int goblock::setup::BLOCK_COUNT{8};
 int goblock::setup::SCORE{0};
 int goblock::setup::LIVE{3};
 
@@ -28,18 +27,45 @@ void GameScene::init(
     player = goblock::system::create_object(game_world, "player", player_position, player_size, player_velocity);
 
     // initialize blocks
-    component::Destroyed is_destroyed{};
-    is_destroyed.is_destroyed = false;
-    for (int i = 0; i < blocks.size(); ++i) {
-        goblock::component::SizeRectangle block_size{90, 25};
-        goblock::component::Position block_position{
-            static_cast<float>(200 + (i * 110)),
-            200,
-        };
+    assert(!blocks.empty());
 
-        auto block = goblock::system::create_object(
-            game_world, &"block"[i], block_position, block_size, player_velocity, is_destroyed);
-        blocks[i] = block;
+    goblock::component::Destroyed is_destroyed{false};
+    goblock::component::SizeRectangle block_size{};
+    goblock::component::Position block_position{};
+
+    switch (goblock::setup::level_screen) {
+    case goblock::setup::LevelScreen::LEVEL_1:
+        for (int i = 0; i < blocks.size(); ++i) {
+            block_size.width = 80;
+            block_size.height = 25;
+            block_position.x = static_cast<float>(150 + (i * 110));
+            block_position.y = 200;
+            auto block = goblock::system::create_object(
+                game_world, &"block" [i], block_position, block_size, { 0, 0 }, is_destroyed);
+            blocks[i] = block;
+        }
+        break;
+    case goblock::setup::LevelScreen::LEVEL_2:
+        for (int i = 0; i < blocks.size(); ++i) {
+            block_size.width = 70;
+            block_size.height = 35;
+            block_position.y = 80;
+            if (i >= 10 && i < 20) {
+                block_position.x = static_cast<float>(110 + ((i - 10) * 110));
+                block_position.y = 150;
+            }
+            else if (i >= 20) {
+                block_position.x = static_cast<float>(110 + ((i - 20) * 110));
+                block_position.y = 220;
+            }
+            else {
+                block_position.x = static_cast<float>(110 + (i * 110));
+            }
+            auto block = goblock::system::create_object(
+                game_world, &"block"[i], block_position, block_size, player_velocity, is_destroyed);
+            blocks[i] = block;
+        }
+        break;
     }
 }
 
@@ -128,6 +154,34 @@ void GameScene::collision_player(
 }
 
 /// BLOCKS
+std::vector<flecs::entity> GameScene::create_blocks(
+    flecs::world& game_world,
+    goblock::component::Position& position_block,
+    goblock::component::SizeRectangle& size_block,
+    const int& block_count,
+    const int start_position,
+    const int space)
+{
+    std::vector<flecs::entity> blocks{(unsigned)block_count};
+    component::Destroyed is_destroyed{false};
+
+    for (int i = 0; i < block_count; ++i) {
+        if (i >= 8 && i <= 16) {
+            position_block.y = 275;
+            position_block.x = static_cast<float>(start_position + ((i - 8.0) * space));
+        }
+        else {
+            position_block.x = static_cast<float>(start_position + (i * space));
+        }
+
+        auto block = goblock::system::create_object(
+            game_world, &"block" [i], position_block, size_block, { 0, 0 }, is_destroyed);
+        blocks[i] = block;
+    }
+
+    return blocks;
+}
+
 void GameScene::render_blocks(
     flecs::entity& block,
     const goblock::component::Position* position_block,
@@ -149,7 +203,8 @@ void GameScene::collision_block(
     const goblock::component::Position* position_ball,
     const goblock::component::SizeCircle* radius_ball,
     const goblock::component::Velocity* velocity_ball,
-    const goblock::component::Direction* direction_ball)
+    const goblock::component::Direction* direction_ball,
+    int& block_count)
 {
     const auto* is_destroyed = block.get<component::Destroyed>();
     if (is_destroyed->is_destroyed) {
@@ -165,7 +220,7 @@ void GameScene::collision_block(
         ball.set<goblock::component::Direction>({direction_ball->x * 1, direction_ball->y * -1});
         block.set<goblock::component::Destroyed>({true});
 
-        goblock::setup::BLOCK_COUNT -= 1;
+        block_count -= 1;
         goblock::setup::SCORE += 1;
     }
 }
@@ -200,32 +255,49 @@ void GameScene::player_ball_collision(
 }
 
 void GameScene::ball_out(
+    flecs::entity& ball,
+    flecs::entity& player,
     const goblock::component::Position* position_ball,
     const goblock::component::SizeCircle* radius_ball,
     Sound& sound_lose,
-    goblock::setup::GameScreen& game_screen,
-    int& lives)
+    goblock::setup::GameScreen& game_screen)
 {
     if (position_ball->y + radius_ball->radius >= (float)GetScreenHeight()) {
         PlaySound(sound_lose);
-        game_screen = goblock::setup::GameScreen::GAME_OVER;
-        return;
-
-        // TODO: reset ball
-        lives--;
-        if (lives <= 0) {
+        goblock::setup::LIVE--;
+        if (goblock::setup::LIVE <= 0) {
             game_screen = goblock::setup::GameScreen::GAME_OVER;
         }
         else {
+            reset_game(ball, player);
         }
     }
 }
 
-void GameScene::winning_check(Sound& sound_win, goblock::setup::GameScreen& game_screen)
+void GameScene::reset_game(flecs::entity& ball, flecs::entity& player)
 {
-    if (goblock::setup::BLOCK_COUNT <= 0) {
+    ball.set<goblock::component::Position>(
+        {static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2, static_cast<float>(goblock::setup::SCREEN_HEIGHT) / 6});
+    player.set<goblock::component::Position>(
+        {static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2 -
+             (player.get<goblock::component::SizeRectangle>()->width / 2),
+         goblock::setup::SCREEN_HEIGHT - 80});
+}
+
+void GameScene::winning_check(Sound& sound_win, goblock::setup::GameScreen& game_screen, const int& block_count)
+{
+    if (block_count <= 0) {
         PlaySound(sound_win);
         game_screen = goblock::setup::GameScreen::GAME_VICTORY;
+        switch (goblock::setup::level_screen) {
+        case setup::LevelScreen::LEVEL_1:
+            goblock::setup::level_screen = setup::LevelScreen::LEVEL_2;
+            break;
+        case setup::LevelScreen::LEVEL_2:
+            // TODO: change to level 3
+            goblock::setup::level_screen = setup::LevelScreen::LEVEL_1;
+            break;
+        }
     }
 }
 
@@ -240,12 +312,16 @@ void GameScene::debug_info(
     DrawText(TextFormat("Ball Vx: %2.2f", velocity_ball->x / 10), 0, 50, 20, WHITE);
     DrawText(TextFormat("Ball Vy: %2.2f", velocity_ball->y / 10), 0, 75, 20, WHITE);
 
-    DrawText(TextFormat("Block: %2.2f", block_count), 0, 100, 20, WHITE);
+    DrawText(TextFormat("Block: %d", block_count), 0, 100, 20, WHITE);
+
+    DrawText(TextFormat("Level: %d", goblock::setup::level_screen), 0, 125, 20, WHITE);
 }
 
-void GameScene::cleanup(std::vector<Music>& musics)
+void GameScene::cleanup(std::vector<Music>& musics, std::vector<Texture2D>& textures)
 {
     goblock::setup::game_screen = goblock::setup::GameScreen::GAME_END;
+
+    for (const auto& texture : textures) { UnloadTexture(texture); }
     for (const auto& music : musics) { UnloadMusicStream(music); }
     CloseAudioDevice();
     CloseWindow();

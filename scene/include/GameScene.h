@@ -32,11 +32,12 @@ public:
         const goblock::component::Direction* direction_ball);
 
     static void ball_out(
+        flecs::entity& ball,
+        flecs::entity& player,
         const goblock::component::Position* position_ball,
         const goblock::component::SizeCircle* radius_ball,
         Sound& sound_lose,
-        goblock::setup::GameScreen& game_screen,
-        int& lives);
+        goblock::setup::GameScreen& game_screen);
 
     /// PLAYER
     static void render_player(
@@ -65,6 +66,14 @@ public:
         const Sound& sound_block);
 
     /// BLOCKS
+    static std::vector<flecs::entity> create_blocks(
+        flecs::world& game_world,
+        goblock::component::Position& position_block,
+        goblock::component::SizeRectangle& size_block,
+        const int& block_count,
+        const int start_position,
+        const int space);
+
     static void render_blocks(
         flecs::entity& block,
         const goblock::component::Position* position_block,
@@ -79,17 +88,20 @@ public:
         const goblock::component::Position* position_ball,
         const goblock::component::SizeCircle* radius_ball,
         const goblock::component::Velocity* velocity_ball,
-        const goblock::component::Direction* direction_ball);
+        const goblock::component::Direction* direction_ball,
+        int& block_count);
 
     // Etc
-    static void winning_check(Sound& sound_win, goblock::setup::GameScreen& game_screen);
+    static void reset_game(flecs::entity& ball, flecs::entity& player);
+
+    static void winning_check(Sound& sound_win, goblock::setup::GameScreen& game_screen, const int& block_count);
 
     static void debug_info(
         const goblock::component::Position* position_ball,
         const goblock::component::Velocity* velocity_ball,
         const int& block_count);
 
-    static void cleanup(std::vector<Music>& musics);
+    static void cleanup(std::vector<Music>& musics, std::vector<Texture2D>& textures);
 
 private:
 };

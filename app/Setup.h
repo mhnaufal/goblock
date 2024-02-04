@@ -30,14 +30,18 @@ static LevelScreen level_screen = LevelScreen::LEVEL_1;
 static const float GRAVITY{0.4f};
 static const float BALL_SPEED{8};
 
-extern int BLOCK_COUNT;
+// extern int BLOCK_COUNT;
+static int BLOCK_COUNT{};
 extern int SCORE;
 extern int LIVE;
 
-static Color GOBLOCK_GRAY{21, 27, 45};
+static Color GOBLOCK_BACKGROUND{22, 0, 37};
+static Color GOBLOCK_BACKGROUND2{22, 50, 37};
 static Color GOBLOCK_WHITE{255, 251, 195, 255};
 static Color GOBLOCK_BLUE{131, 158, 238, 255};
 static Color GOBLOCK_GREEN{94, 247, 109, 255};
 static Color GOBLOCK_RED{255, 90, 90, 255};
+static Color GOBLOCK_RED2{120,0,10};
+static Color GOBLOCK_PINK{255, 0, 157, 255};
 
 } // namespace goblock::setup
