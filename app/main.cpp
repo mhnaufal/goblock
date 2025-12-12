@@ -13,7 +13,7 @@ int main()
     /// check current level
     switch (goblock::setup::level_screen) {
     case goblock::setup::LevelScreen::LEVEL_1:
-        goblock::setup::BLOCK_COUNT = 1;
+        goblock::setup::BLOCK_COUNT = 8;
         break;
     case goblock::setup::LevelScreen::LEVEL_2:
         goblock::setup::BLOCK_COUNT = 8 * 2;
