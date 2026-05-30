@@ -98,6 +98,7 @@ void GameScene::collision_ball(
         position_ball->x + radius_ball->radius >= (float)GetScreenWidth()) {
         ball.set<goblock::component::Velocity>({velocity_ball->x * -1, velocity_ball->y});
         ball.set<goblock::component::Direction>({direction_ball->x * -1, direction_ball->y});
+        auto ball_velocity = ball.get<goblock::component::Velocity>();
     }
 
     if (position_ball->y - radius_ball->radius <= 0) {
@@ -188,7 +189,7 @@ void GameScene::render_blocks(
     const goblock::component::SizeRectangle* size_block,
     Color& color)
 {
-    const auto* is_destroyed = block.get<component::Destroyed>();
+    const auto* is_destroyed = block.try_get<component::Destroyed>();
     if (!is_destroyed->is_destroyed) {
         DrawRectangle(
             (int)position_block->x, (int)position_block->y, (int)size_block->width, (int)size_block->height, color);
@@ -206,7 +207,7 @@ void GameScene::collision_block(
     const goblock::component::Direction* direction_ball,
     int& block_count)
 {
-    const auto* is_destroyed = block.get<component::Destroyed>();
+    const auto* is_destroyed = block.try_get<component::Destroyed>();
     if (is_destroyed->is_destroyed) {
         return;
     }
@@ -280,7 +281,7 @@ void GameScene::reset_game(flecs::entity& ball, flecs::entity& player)
         {static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2, static_cast<float>(goblock::setup::SCREEN_HEIGHT) / 6});
     player.set<goblock::component::Position>(
         {static_cast<float>(goblock::setup::SCREEN_WIDTH) / 2 -
-             (player.get<goblock::component::SizeRectangle>()->width / 2),
+             (player.try_get<goblock::component::SizeRectangle>()->width / 2),
          goblock::setup::SCREEN_HEIGHT - 80});
 }
 

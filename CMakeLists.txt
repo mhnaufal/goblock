@@ -2,13 +2,13 @@ cmake_minimum_required(VERSION 3.23)
 
 project(
         goblock
-        VERSION 1.0
+        VERSION 1.0.0
         DESCRIPTION "Go-Block: A simple blocks destroyer game!"
         LANGUAGES CXX
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE CACHE BOOL "" FORCE)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 if (MSVC)
     set(CMAKE_CXX_FLAGS "/W4 /permissive-")

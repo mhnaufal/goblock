@@ -31,15 +31,15 @@ int main()
     InitWindow(goblock::setup::SCREEN_WIDTH, goblock::setup::SCREEN_HEIGHT, goblock::setup::GAME_NAME.c_str());
     InitAudioDevice();
 
-    Texture2D img_ifa = LoadTexture("../assets/img/ifa.png");
-    Texture2D img_ifa2 = LoadTexture("../assets/img/ifa2.png");
+    Texture2D img_ifa = LoadTexture("./assets/img/ifa.png");
+    Texture2D img_ifa2 = LoadTexture("./assets/img/ifa2.png");
     std::vector textures{img_ifa, img_ifa2};
 
-    Music music = LoadMusicStream("../assets/audio/game.mp3");
-    Music music_menu = LoadMusicStream("../assets/audio/menu.mp3");
-    Sound sound_block = LoadSound("../assets/audio/block.mp3");
-    Sound sound_win = LoadSound("../assets/audio/victory.mp3");
-    Sound sound_lose = LoadSound("../assets/audio/lose.mp3");
+    Music music = LoadMusicStream("./assets/audio/game.mp3");
+    Music music_menu = LoadMusicStream("./assets/audio/menu.mp3");
+    Sound sound_block = LoadSound("./assets/audio/block.mp3");
+    Sound sound_win = LoadSound("./assets/audio/victory.mp3");
+    Sound sound_lose = LoadSound("./assets/audio/lose.mp3");
     std::vector musics{music, music_menu};
 
     SetMusicVolume(music, 0.9f);
@@ -55,22 +55,22 @@ int main()
 
     while (!WindowShouldClose() && goblock::setup::game_screen != goblock::setup::GameScreen::GAME_END) {
         /// BALL
-        const auto* position_ball = ball.get<goblock::component::Position>();
-        const auto* radius_ball = ball.get<goblock::component::SizeCircle>();
-        const auto* velocity_ball = ball.get<goblock::component::Velocity>();
-        const auto* direction_ball = ball.get<goblock::component::Direction>();
+        const auto* position_ball = ball.try_get<goblock::component::Position>();
+        const auto* radius_ball = ball.try_get<goblock::component::SizeCircle>();
+        const auto* velocity_ball = ball.try_get<goblock::component::Velocity>();
+        const auto* direction_ball = ball.try_get<goblock::component::Direction>();
 
         /// PLAYER
-        const auto* position_player = player.get<goblock::component::Position>();
-        const auto* size_player = player.get<goblock::component::SizeRectangle>();
-        const auto* velocity_player = player.get<goblock::component::Velocity>();
+        const auto* position_player = player.try_get<goblock::component::Position>();
+        const auto* size_player = player.try_get<goblock::component::SizeRectangle>();
+        const auto* velocity_player = player.try_get<goblock::component::Velocity>();
 
         /// BLOCKS
-        auto* position_block = blocks[0].get<goblock::component::Position>();
-        auto* size_block = blocks[0].get<goblock::component::SizeRectangle>();
+        auto* position_block = blocks[0].try_get<goblock::component::Position>();
+        auto* size_block = blocks[0].try_get<goblock::component::SizeRectangle>();
         for (auto& block : blocks) {
-            position_block = block.get<goblock::component::Position>();
-            size_block = block.get<goblock::component::SizeRectangle>();
+            position_block = block.try_get<goblock::component::Position>();
+            size_block = block.try_get<goblock::component::SizeRectangle>();
             goblock::game::GameScene::collision_block(
                 ball,
                 block,
@@ -237,8 +237,8 @@ int main()
                 goblock::game::GameScene::render_player(position_player, size_player, goblock::setup::GOBLOCK_BLUE);
 
                 for (auto& block : blocks) {
-                    position_block = block.get<goblock::component::Position>();
-                    size_block = block.get<goblock::component::SizeRectangle>();
+                    position_block = block.try_get<goblock::component::Position>();
+                    size_block = block.try_get<goblock::component::SizeRectangle>();
                     goblock::game::GameScene::render_blocks(
                         block, position_block, size_block, goblock::setup::GOBLOCK_GREEN);
                 }
@@ -252,8 +252,8 @@ int main()
                 goblock::game::GameScene::render_player(position_player, size_player, goblock::setup::GOBLOCK_BLUE);
 
                 for (auto& block : blocks) {
-                    position_block = block.get<goblock::component::Position>();
-                    size_block = block.get<goblock::component::SizeRectangle>();
+                    position_block = block.try_get<goblock::component::Position>();
+                    size_block = block.try_get<goblock::component::SizeRectangle>();
                     goblock::game::GameScene::render_blocks(
                         block, position_block, size_block, goblock::setup::GOBLOCK_RED);
                 }
